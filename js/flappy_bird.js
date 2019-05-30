@@ -62,10 +62,12 @@ pipeUp.src = "../images/pipeup.png";
 let birdY = 150;
 let birdX = 100; 
 
-let gap = 80;
+let gap = 100;
 let pipeGap;
 
 let gravity = 1.5;
+
+let score=0;
 
 function moveUp(){
     birdY -= 30; 
@@ -84,23 +86,37 @@ function draw(){
     canvas_context.drawImage(background, 0, 0);
 
     for(let i =0; i<pipes.length; i++){
-
+      
         pipeGap = pipeDown.height + gap;
         // draws pipes
         canvas_context.drawImage(pipeDown, pipes[i].x, pipes[i].y);
         canvas_context.drawImage(pipeUp, pipes[i].x, pipes[i].y+pipeGap);
-
-        pipes[i].x--;
+ 
+        pipes[i].x--;  
 
         if(pipes[i].x == 125){
             let temp = Math.random();
 
             if(temp<0.15) temp = 0.5;
-            console.log(temp);
-            pipes.push({
+            pipes.push({    
                 x : canvas.width,
                 y : Math.floor(temp * pipeDown.height) - pipeDown.height
-            });
+            });       
+        }
+        
+        if(isColission(pipes[i])){
+            canvas_context.drawImage(foreground, 0, background.height-foreground.height);
+            canvas_context.drawImage(flappy_bird, birdX, birdY);
+            let temp = score;
+            canvas_context.fillStyle = "#000";
+            canvas_context.font = "20px Verdana";
+            canvas_context.fillText("Score : "+0,10,canvas.height-20);
+            score=0;
+            alert(temp);
+        } 
+
+        if(pipes[i].x == 1){
+            score++;
         }
     }
 
@@ -109,9 +125,29 @@ function draw(){
 
     // draws bird
     canvas_context.drawImage(flappy_bird, birdX, birdY);
+
+    // if(isColission()) location.reload(); 
+
     birdY += gravity;   // applies gravity 
-    
+
+    canvas_context.fillStyle = "#000";
+    canvas_context.font = "20px Verdana";
+    canvas_context.fillText("Score : "+score,10,canvas.height-20);
+         
     requestAnimationFrame(draw);
 }
 
-draw()[i];
+draw();
+
+//for colission detection 
+function isColission(pipe){
+    return (
+        birdY<=0 
+        || birdY+flappy_bird.height>=background.height-foreground.height 
+        || birdX + flappy_bird.width >= pipe.x 
+        && birdX <= pipe.x + pipeDown.width
+        && (birdY <= pipe.y + pipeDown.height
+            || birdY + flappy_bird.height >= pipe.y + pipeGap
+           )
+    );
+}
